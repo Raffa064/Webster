@@ -120,6 +120,7 @@ public class MainActivity extends AppCompatActivity {
 		final EditText editText = new EditText(this);
 		editText.setText(getTestUrl());
 		editText.setHint("URL or localhost port");
+		editText.requestFocus();
 
 		new AlertDialog.Builder(this)
 			.setTitle("Change test URL")
