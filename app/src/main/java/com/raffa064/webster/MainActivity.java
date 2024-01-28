@@ -64,12 +64,30 @@ public class MainActivity extends AppCompatActivity {
 					clearCache();
 					webView.reload();
 					break;
+				case KeyEvent.KEYCODE_D:
+					String code = (
+						"if (window.eruda) {" +
+						"    if (eruda._isInit) {" +
+						"        eruda.destroy();" +
+						"    } else {" +
+						"        eruda.init();" +
+						"    }" +
+						"} else {" +
+						"    var erudaScript = document.createElement('script');" +
+						"    erudaScript.src = 'https://cdn.jsdelivr.net/npm/eruda';" +
+						"    erudaScript.onload = () => { eruda.init() };" +
+						"    document.body.appendChild(erudaScript);" +
+						"}"
+					);
+
+					webView.evaluateJavascript(code, null);
+					break;
 			}
 		}
 
 		return super.dispatchKeyEvent(event);
 	}
-	
+
 	private void setupWebView() {
 		webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 		webView.addJavascriptInterface(this, "app");
@@ -93,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
 	public void setTestUrl(String url) {
 		preferences.edit().putString("test-url", url).commit();
 	}
-	
+
 	public String getTestUrl() {
 		return preferences.getString("test-url", "http://localhost:8000");
 	}
@@ -111,14 +129,14 @@ public class MainActivity extends AppCompatActivity {
 				@Override
 				public void onClick(DialogInterface dialog, int which) {
 					String input = editText.getText().toString();
-					
+
 					try {
 						int port = Integer.parseInt(input);
-						setTestUrl("http://localhost:"+port);
-					} catch(NumberFormatException e) {
+						setTestUrl("http://localhost:" + port);
+					} catch (NumberFormatException e) {
 						setTestUrl(input);
 					}
-					
+
 					load();
 				}
 			})
