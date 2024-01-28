@@ -60,6 +60,10 @@ public class MainActivity extends AppCompatActivity {
 				case KeyEvent.KEYCODE_U:
 					openUrlDialog();
 					break;
+				case KeyEvent.KEYCODE_R:
+					clearCache();
+					webView.reload();
+					break;
 			}
 		}
 
@@ -124,11 +128,15 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private void load() {
+		clearCache();
+
+		webView.loadUrl(getTestUrl());
+	}
+
+	private void clearCache() {
 		webView.clearCache(true);
 		webView.clearHistory();
 		System.gc();
-
-		webView.loadUrl(getTestUrl());
 	}
 
 	private void showToast(final String message) {
