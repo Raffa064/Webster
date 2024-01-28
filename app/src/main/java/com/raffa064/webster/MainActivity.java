@@ -16,34 +16,16 @@ import android.content.SharedPreferences;
 
 public class MainActivity extends AppCompatActivity {
     private WebView webView;
-	private SharedPreferences sp;
-	private String url = "http://localhost:8000";
+	private SharedPreferences preferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
 		webView = new WebView(this);
-		webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-		webView.addJavascriptInterface(this, "app");
-		webView.setWebViewClient(new WebViewClient());
+		setupWebView();
 
-		WebSettings settings = webView.getSettings();
-		settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
-		settings.setJavaScriptEnabled(true);
-		settings.setForceDark(WebSettings.FORCE_DARK_OFF);
-		settings.setDomStorageEnabled(true);
-		settings.setAllowUniversalAccessFromFileURLs(true);
-		settings.setAllowFileAccessFromFileURLs(true);
-
-		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-			settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW); // http/https access (used for debug)
-		}
-
-		setContentView(webView);
-
-		sp = getSharedPreferences("data", MODE_PRIVATE);
-		url = sp.getString("url", "http://localhost:8000");
+		preferences = getSharedPreferences("data", MODE_PRIVATE);
 		load();
     }
 
@@ -83,14 +65,42 @@ public class MainActivity extends AppCompatActivity {
 
 		return super.dispatchKeyEvent(event);
 	}
+	
+	private void setupWebView() {
+		webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+		webView.addJavascriptInterface(this, "app");
+		webView.setWebViewClient(new WebViewClient());
+
+		WebSettings settings = webView.getSettings();
+		settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
+		settings.setJavaScriptEnabled(true);
+		settings.setForceDark(WebSettings.FORCE_DARK_OFF);
+		settings.setDomStorageEnabled(true);
+		settings.setAllowUniversalAccessFromFileURLs(true);
+		settings.setAllowFileAccessFromFileURLs(true);
+
+		if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+			settings.setMixedContentMode(WebSettings.MIXED_CONTENT_ALWAYS_ALLOW); // http/https access (used for debug)
+		}
+
+		setContentView(webView);
+	}
+
+	public void setTestUrl(String url) {
+		preferences.edit().putString("test-url", url).commit();
+	}
+	
+	public String getTestUrl() {
+		return preferences.getString("test-url", "http://localhost:8000");
+	}
 
 	public void openUrlDialog() {
-		// Adicionar um EditText ao AlertDialog
 		final EditText editText = new EditText(this);
-		editText.setText(url);
+		editText.setText(getTestUrl());
+		editText.setHint("URL or localhost port");
 
 		new AlertDialog.Builder(this)
-			.setTitle("Change testt url")
+			.setTitle("Change test URL")
 			.setView(editText)
 			.setNegativeButton("Cancel", null)
 			.setPositiveButton("Change", new DialogInterface.OnClickListener() {
@@ -100,9 +110,9 @@ public class MainActivity extends AppCompatActivity {
 					
 					try {
 						int port = Integer.parseInt(input);
-						url = "http://localhost:"+port;
+						setTestUrl("http://localhost:"+port);
 					} catch(NumberFormatException e) {
-						url = input;
+						setTestUrl(input);
 					}
 					
 					load();
@@ -118,8 +128,7 @@ public class MainActivity extends AppCompatActivity {
 		webView.clearHistory();
 		System.gc();
 
-		webView.loadUrl(url);
-		sp.edit().putString("url", url).commit();
+		webView.loadUrl(getTestUrl());
 	}
 
 	private void showToast(final String message) {
