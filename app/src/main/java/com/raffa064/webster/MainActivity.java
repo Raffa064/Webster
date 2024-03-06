@@ -1,6 +1,7 @@
 package com.raffa064.webster;
 
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -8,11 +9,13 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import com.raffa064.webster.MainActivity;
-import android.webkit.WebViewClient;
-import android.content.SharedPreferences;
+import android.view.View.OnClickListener;
 
 public class MainActivity extends AppCompatActivity {
     private WebView webView;
@@ -92,7 +95,8 @@ public class MainActivity extends AppCompatActivity {
 		webView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
 		webView.addJavascriptInterface(this, "app");
 		webView.setWebViewClient(new WebViewClient());
-
+        //webView.setBackgroundColor(Color.TRANSPARENT);
+		
 		WebSettings settings = webView.getSettings();
 		settings.setCacheMode(WebSettings.LOAD_NO_CACHE);
 		settings.setJavaScriptEnabled(true);
@@ -117,14 +121,29 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	public void openUrlDialog() {
+		LinearLayout layout = new LinearLayout(this);
+		layout.setOrientation(LinearLayout.VERTICAL);
+		
 		final EditText editText = new EditText(this);
 		editText.setText(getTestUrl());
 		editText.setHint("URL or localhost port");
 		editText.requestFocus();
 
+		Button button = new Button(this);
+		button.setText("Use current page");
+		button.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				editText.setText(webView.getUrl());
+			}
+		});
+		
+		layout.addView(editText);
+		layout.addView(button);
+
 		new AlertDialog.Builder(this)
 			.setTitle("Change test URL")
-			.setView(editText)
+			.setView(layout)
 			.setNegativeButton("Cancel", null)
 			.setPositiveButton("Change", new DialogInterface.OnClickListener() {
 				@Override
